@@ -45,7 +45,7 @@ class InvoiceApp(tk.Tk):
 
         tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
         self.client_address_label = tk.Label(self, text=self.client_address_var.get())
-        self.client_address_label.grid(row=1, column=2, sticky="w")
+        self.client_address_label.grid(row=1, column=1, sticky="w")
 
         tk.Label(self, text="User Name:").grid(row=0, column=8, sticky="w")
         self.freelancer_name_label = tk.Label(self, text=self.freelancer_name_var.get())
@@ -65,11 +65,12 @@ class InvoiceApp(tk.Tk):
 
 
         # Itemization table
-        self.itemization_table = ttk.Treeview(self, columns=("Id", "Item", "Price", "Tax"))
+        self.itemization_table = ttk.Treeview(self, columns=("Id", "Item", "Hours", "Hourly", "Price"))
         self.itemization_table.heading("Id", text="Item Id")
         self.itemization_table.heading("Item", text="Item Description")
+        self.itemization_table.heading("Hours", text="Hours")
+        self.itemization_table.heading("Hourly", text="Hourly")
         self.itemization_table.heading("Price", text="Price")
-        self.itemization_table.heading("Tax", text="Tax")
         self.itemization_table.column("#0", width=0, stretch=tk.NO)  # Hide the first (empty) column
         self.itemization_table.grid(row=5, column=0, columnspan=2)
 
@@ -95,28 +96,29 @@ class InvoiceApp(tk.Tk):
         item_dialog.title("Add Item")
 
         # Entry for item name
-        tk.Label(item_dialog, text="Item:").grid(row=0, column=0, sticky="w")
-        item_name_var = tk.StringVar()
-        tk.Entry(item_dialog, textvariable=item_name_var).grid(row=0, column=1, sticky="w")
+        tk.Label(item_dialog, text="Description:").grid(row=0, column=0, sticky="w")
+        item_description_var = tk.StringVar()
+        tk.Entry(item_dialog, textvariable=item_description_var).grid(row=0, column=1, sticky="w")
 
-        # Entry for item price
-        tk.Label(item_dialog, text="Price:").grid(row=1, column=0, sticky="w")
-        item_price_var = tk.DoubleVar()
-        tk.Entry(item_dialog, textvariable=item_price_var).grid(row=1, column=1, sticky="w")
+        # Entry for hours
+        tk.Label(item_dialog, text="Hours:").grid(row=1, column=0, sticky="w")
+        item_hours_var = tk.DoubleVar()
+        tk.Entry(item_dialog, textvariable=item_hours_var).grid(row=1, column=1, sticky="w")
 
-        # Entry for item tax
-        tk.Label(item_dialog, text="Tax:").grid(row=2, column=0, sticky="w")
-        item_tax_var = tk.DoubleVar()
-        tk.Entry(item_dialog, textvariable=item_tax_var).grid(row=2, column=1, sticky="w")
+        # Entry for hourly
+        tk.Label(item_dialog, text="Hourly:").grid(row=2, column=0, sticky="w")
+        item_hourly_var = tk.DoubleVar()
+        tk.Entry(item_dialog, textvariable=item_hourly_var).grid(row=2, column=1, sticky="w")
 
         # Button to add item to the table
-        tk.Button(item_dialog, text="Add", command=lambda: self.insert_item(item_name_var.get(), item_price_var.get(), item_tax_var.get(), item_dialog)).grid(row=3, columnspan=2)
+        tk.Button(item_dialog, text="Add", command=lambda: self.insert_item(item_description_var.get(), item_hours_var.get(), item_hourly_var.get(), item_dialog)).grid(row=3, columnspan=2)
 
 
-    def insert_item(self, item_name, item_price, item_tax, item_dialog):
+    def insert_item(self, item_description, item_hours, item_hourly, item_dialog):
 
-        self.itemization_table.insert('', 'end', values=(self.next_item_id, item_name, item_price, item_tax))
-        self.next_item_id += 1  # Increment the next_item_id value
+        item_price = item_hourly * item_hours
+        self.itemization_table.insert('', 'end', values=(self.next_item_id, item_description, item_hours, item_hourly, item_price))
+        self.next_item_id += 1
         item_dialog.destroy()
 
 
