@@ -16,12 +16,14 @@ class InvoiceApp(tk.Tk):
         self.geometry(f"{screen_width}x{screen_height}")
         self.next_item_id = 1 
 
-
-
         # Initialize StringVars for the freelancer's information
         self.freelancer_name_var = tk.StringVar()
         self.freelancer_address_var = tk.StringVar()
         self.umsatzsteuersatz_var = tk.StringVar()
+
+        # Initialize StringVars for the client's information
+        self.client_name_var = tk.StringVar()
+        self.client_address_var = tk.StringVar()
 
         # Load the user profile and clients
         self.load_profile()
@@ -33,12 +35,16 @@ class InvoiceApp(tk.Tk):
     def create_widgets(self):
         # Labels and input fields for invoice data
         tk.Label(self, text="Client Name:").grid(row=0, column=0, sticky="w")
-        self.client_name_label = tk.Label(self, text="")
-        self.client_name_label.grid(row=0, column=1, sticky="w")
+        self.client_dropdown = ttk.Combobox(self, values=[], state="readonly")
+        self.client_dropdown.grid(row=0, column=1, sticky="w")
+        self.client_dropdown.bind("<<ComboboxSelected>>", lambda event: self.update_client_labels())
+
+        self.client_name_label = tk.Label(self, text=self.client_name_var.get())
+        self.client_name_label.grid(row=0, column=2, sticky="w")
 
         tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
-        self.client_address_label = tk.Label(self, text="")
-        self.client_address_label.grid(row=1, column=1, sticky="w")
+        self.client_address_label = tk.Label(self, text=self.client_address_var.get())
+        self.client_address_label.grid(row=1, column=2, sticky="w")
 
         tk.Label(self, text="User Name:").grid(row=0, column=8, sticky="w")
         self.freelancer_name_label = tk.Label(self, text=self.freelancer_name_var.get())
@@ -49,8 +55,8 @@ class InvoiceApp(tk.Tk):
         self.freelancer_address_label.grid(row=1, column=9, sticky="w")
 
         tk.Label(self, text="Umsatzsteuersatz:").grid(row=2, column=8, sticky="w")
-        self.freelancer_address_label = tk.Label(self, text=self.umsatzsteuersatz_var.get())
-        self.freelancer_address_label.grid(row=2, column=9, sticky="w")
+        self.umsatzsteuersatz_label = tk.Label(self, text=self.umsatzsteuersatz_var.get())
+        self.umsatzsteuersatz_label.grid(row=2, column=9, sticky="w")
 
         tk.Label(self, text="Invoice ID:").grid(row=4, column=0, sticky="w")
         self.invoice_id_var = tk.StringVar()
@@ -209,6 +215,13 @@ class ProfileSetup(tk.Toplevel):
         with open('profile.ini', 'w') as configfile:
             config.write(configfile)
         self.destroy()
+
+        # Update the user information in the main app
+        self.master.load_profile()
+        self.master.freelancer_name_label.config(text=self.master.freelancer_name_var.get())
+        self.master.freelancer_address_label.config(text=self.master.freelancer_address_var.get())
+        self.master.umsatzsteuersatz_label.config(text=self.master.umsatzsteuersatz_var.get())
+
 
 
 class ClientSetup(tk.Toplevel):
