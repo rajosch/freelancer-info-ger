@@ -22,11 +22,15 @@ class InvoiceApp(tk.Tk):
         self.umsatzsteuersatz_var = tk.StringVar()
 
         # Initialize StringVars for the client's information
+        self.client_dropdown = ttk.Combobox(self)
+        self.client_dropdown.grid(row=0, column=1, sticky="w")
+
         self.client_name_var = tk.StringVar()
         self.client_address_var = tk.StringVar()
 
         # Load the user profile and clients
         self.load_profile()
+        self.create_clients_file_if_not_exists()
         self.load_clients()
 
         self.create_widgets()
@@ -165,16 +169,19 @@ class InvoiceApp(tk.Tk):
     def setup_client(self):
         ClientSetup(self)
 
+    def create_clients_file_if_not_exists(self):
+        if not os.path.exists('clients.json'):
+            with open('clients.json', 'w') as clients_file:
+                json.dump([], clients_file)
+
+
     
     def load_clients(self):
-        if os.path.exists('clients.json'):
-            with open('clients.json', 'r') as clients_file:
-                self.clients = json.load(clients_file)
-                client_names = [client['Name'] for client in self.clients]
-                self.client_dropdown['values'] = client_names
-                if client_names:
-                    self.client_dropdown.set(client_names[0])
-                    self.update_client_labels()
+        with open('clients.json', 'r') as f:
+            clients = json.load(f)
+
+        client_names = [client['name'] for client in clients]
+        self.client_dropdown['values'] = client_names
 
     def update_client_labels(self):
         selected_client = [client for client in self.clients if client['Name'] == self.client_dropdown.get()][0]
