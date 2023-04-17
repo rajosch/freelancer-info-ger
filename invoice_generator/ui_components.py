@@ -25,15 +25,15 @@ class InvoiceApp(tk.Tk):
         self.client_dropdown = ttk.Combobox(self)
         self.client_dropdown.grid(row=0, column=1, sticky="w")
 
-        self.client_name_var = tk.StringVar()
         self.client_address_var = tk.StringVar()
 
         # Load the user profile and clients
         self.load_profile()
         self.create_clients_file_if_not_exists()
-        self.load_clients()
 
         self.create_widgets()
+        self.clients = {}
+        self.load_clients()
 
 
     def create_widgets(self):
@@ -42,9 +42,6 @@ class InvoiceApp(tk.Tk):
         self.client_dropdown = ttk.Combobox(self, values=[], state="readonly")
         self.client_dropdown.grid(row=0, column=1, sticky="w")
         self.client_dropdown.bind("<<ComboboxSelected>>", lambda event: self.update_client_labels())
-
-        self.client_name_label = tk.Label(self, text=self.client_name_var.get())
-        self.client_name_label.grid(row=0, column=2, sticky="w")
 
         tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
         self.client_address_label = tk.Label(self, text=self.client_address_var.get())
@@ -91,8 +88,7 @@ class InvoiceApp(tk.Tk):
         tk.Button(self, text="Setup Profile", command=self.setup_profile).grid(row=8, columnspan=2)
 
         # Button to add client profile
-        tk.Button(self, text="Setup Client", command=self.setup_client).grid(row=8, column=4, columnspan=2)
-
+        tk.Button(self, text="Add Client", command=self.add_client).grid(row=8, column=4, columnspan=2)
 
     def add_item(self):
         item_dialog = tk.Toplevel(self)
@@ -166,27 +162,40 @@ class InvoiceApp(tk.Tk):
             self.freelancer_address_var.set(config['Profile']['Address'])
             self.umsatzsteuersatz_var.set(config['Profile']['Umsatzsteuer'])
 
-    def setup_client(self):
-        ClientSetup(self)
+    def add_client(self):
+        client_setup = ClientSetup(parent=self)
+        client_setup.protocol("WM_DELETE_WINDOW", lambda: self.close_client_setup(client_setup))
+
+    def close_client_setup(self, client_setup):
+        self.load_clients()
+        client_setup.destroy()
 
     def create_clients_file_if_not_exists(self):
         if not os.path.exists('clients.json'):
             with open('clients.json', 'w') as clients_file:
-                json.dump([], clients_file)
+                json.dump({}, clients_file)
 
 
     
     def load_clients(self):
-        with open('clients.json', 'r') as f:
-            clients = json.load(f)
+        if not os.path.exists('clients.json'):
+            return
 
-        client_names = [client['name'] for client in clients]
+        with open('clients.json', 'r') as file:
+            self.clients = json.load(file)
+
+        client_names = list(self.clients.keys())
         self.client_dropdown['values'] = client_names
 
+
     def update_client_labels(self):
-        selected_client = [client for client in self.clients if client['Name'] == self.client_dropdown.get()][0]
-        self.client_name_label.config(text=selected_client['Name'])
-        self.client_address_label.config(text=selected_client['Address'])
+        selected_client = self.client_dropdown.get()
+        client_data = self.clients[selected_client]
+
+        client_address = client_data.get("address", "")
+        self.client_address_var.set(client_address)
+        self.client_address_label.config(text=self.client_address_var.get())
+
 
 
 
@@ -232,36 +241,47 @@ class ProfileSetup(tk.Toplevel):
 
 
 class ClientSetup(tk.Toplevel):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.parent = parent
         self.title("Client Setup")
-        self.create_widgets()
-
-    def create_widgets(self):
+        
+        # Define the client name and address entry widgets
         tk.Label(self, text="Client Name:").grid(row=0, column=0, sticky="w")
         self.name_var = tk.StringVar()
-        tk.Entry(self, textvariable=self.name_var).grid(row=0, column=1, sticky="w")
+        self.client_name_entry = tk.Entry(self, textvariable=self.name_var)
+        self.client_name_entry.grid(row=0, column=1, sticky="w")
 
         tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
         self.address_var = tk.StringVar()
-        tk.Entry(self, textvariable=self.address_var).grid(row=1, column=1, sticky="w")
-
+        self.client_address_entry = tk.Entry(self, textvariable=self.address_var)
+        self.client_address_entry.grid(row=1, column=1, sticky="w")
+        
         tk.Button(self, text="Save Client", command=self.save_client).grid(row=2, columnspan=2)
 
     def save_client(self):
+        client_name = self.name_var.get()
+        client_address = self.address_var.get()
+        if not client_name or not client_address:
+            messagebox.showerror("Error", "Please enter client name and address.")
+            return
+
         client = {
-            'Name': self.name_var.get(),
-            'Address': self.address_var.get()
+            "name": client_name,
+            "address": client_address
         }
 
-        clients = []
         if os.path.exists('clients.json'):
-            with open('clients.json', 'r') as clients_file:
-                clients = json.load(clients_file)
+            with open('clients.json', 'r') as file:
+                clients = json.load(file)
+        else:
+            clients = {}
 
-        clients.append(client)
+        clients[client_name] = client
 
-        with open('clients.json', 'w') as clients_file:
-            json.dump(clients, clients_file)
+        with open('clients.json', 'w') as file:
+            json.dump(clients, file)
 
+        self.parent.load_clients()
         self.destroy()
+
