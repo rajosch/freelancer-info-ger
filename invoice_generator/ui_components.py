@@ -26,6 +26,10 @@ class InvoiceApp(tk.Tk):
         self.client_dropdown.grid(row=0, column=1, sticky="w")
 
         self.client_address_var = tk.StringVar()
+        self.client_currency_var = tk.StringVar()
+        self.client_english_var = tk.StringVar()
+        self.client_umsatzsteuer_var = tk.StringVar()
+
 
         # Load the user profile and clients
         self.load_profile()
@@ -37,31 +41,50 @@ class InvoiceApp(tk.Tk):
 
 
     def create_widgets(self):
+
+        h1_font = ("Arial", 16, "bold")
+
         # Labels and input fields for invoice data
-        tk.Label(self, text="Client Name:").grid(row=0, column=0, sticky="w")
-        self.client_dropdown = ttk.Combobox(self, values=[], state="readonly")
-        self.client_dropdown.grid(row=0, column=1, sticky="w")
+        tk.Label(self, text="Kunde", font=h1_font).grid(row=0, column=0, sticky="w")
+
+        tk.Label(self, text="Name:").grid(row=1, column=0, sticky="w")
+        self.client_dropdown.grid(row=1, column=1, sticky="w")
         self.client_dropdown.bind("<<ComboboxSelected>>", lambda event: self.update_client_labels())
 
-        tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
+        tk.Label(self, text="Addresse:").grid(row=2, column=0, sticky="w")
         self.client_address_label = tk.Label(self, text=self.client_address_var.get())
-        self.client_address_label.grid(row=1, column=1, sticky="w")
+        self.client_address_label.grid(row=2, column=1, sticky="w")
 
-        tk.Label(self, text="User Name:").grid(row=0, column=8, sticky="w")
+        tk.Label(self, text="Währung:").grid(row=3, column=0, sticky="w")
+        self.client_currency_label = tk.Label(self, text=self.client_currency_var.get())
+        self.client_currency_label.grid(row=3, column=1, sticky="w")
+
+        tk.Label(self, text="English:").grid(row=4, column=0, sticky="w")
+        self.client_english_label = tk.Label(self, text=self.client_english_var.get())
+        self.client_english_label.grid(row=4, column=1, sticky="w")
+
+        tk.Label(self, text="Umsatzsteuer:").grid(row=5, column=0, sticky="w")
+        self.client_umsatzsteuer_label = tk.Label(self, text=self.client_umsatzsteuer_var.get())
+        self.client_umsatzsteuer_label.grid(row=5, column=1, sticky="w")
+
+        
+        tk.Label(self, text="Profil", font=h1_font).grid(row=0, column=10, sticky="w")
+
+        tk.Label(self, text="Name:").grid(row=1, column=10, sticky="w")
         self.freelancer_name_label = tk.Label(self, text=self.freelancer_name_var.get())
-        self.freelancer_name_label.grid(row=0, column=9, sticky="w")
+        self.freelancer_name_label.grid(row=1, column=11, sticky="w")
 
-        tk.Label(self, text="User Address:").grid(row=1, column=8, sticky="w")
+        tk.Label(self, text="User Address:").grid(row=2, column=10, sticky="w")
         self.freelancer_address_label = tk.Label(self, text=self.freelancer_address_var.get())
-        self.freelancer_address_label.grid(row=1, column=9, sticky="w")
+        self.freelancer_address_label.grid(row=2, column=11, sticky="w")
 
-        tk.Label(self, text="Umsatzsteuersatz:").grid(row=2, column=8, sticky="w")
+        tk.Label(self, text="Umsatzsteuersatz (%):").grid(row=3, column=10, sticky="w")
         self.umsatzsteuersatz_label = tk.Label(self, text=self.umsatzsteuersatz_var.get())
-        self.umsatzsteuersatz_label.grid(row=2, column=9, sticky="w")
+        self.umsatzsteuersatz_label.grid(row=3, column=11, sticky="w")
 
-        tk.Label(self, text="Invoice ID:").grid(row=4, column=0, sticky="w")
+        tk.Label(self, text="Invoice ID:").grid(row=19, column=4, sticky="w")
         self.invoice_id_var = tk.StringVar()
-        tk.Entry(self, textvariable=self.invoice_id_var).grid(row=4, column=1, sticky="w")
+        tk.Entry(self, textvariable=self.invoice_id_var).grid(row=19, column=5, sticky="w")
 
 
         # Itemization table
@@ -72,24 +95,24 @@ class InvoiceApp(tk.Tk):
         self.itemization_table.heading("Hourly", text="Hourly")
         self.itemization_table.heading("Price", text="Price")
         self.itemization_table.column("#0", width=0, stretch=tk.NO)  # Hide the first (empty) column
-        self.itemization_table.grid(row=5, column=0, columnspan=2)
+        self.itemization_table.grid(row=20, column=4, columnspan=2)
 
         # Additional fields for itemized invoice (items, prices, taxes, etc.)
         # ...
 
-        tk.Button(self, text="Add Item", command=self.add_item).grid(row=6, column=0)
+        tk.Button(self, text="Add Item", command=self.add_item).grid(row=21, column=4)
 
         # Remove item button
-        tk.Button(self, text="Remove Item", command=self.remove_item).grid(row=6, column=1)
+        tk.Button(self, text="Remove Item", command=self.remove_item).grid(row=21, column=5)
 
         # Button to generate the invoice
-        tk.Button(self, text="Generate Invoice", command=self.generate_invoice).grid(row=7, columnspan=2)
+        tk.Button(self, text="Generate Invoice", command=self.generate_invoice).grid(row=22, column=4, columnspan=2)
 
         # Button to setup the user profile
-        tk.Button(self, text="Setup Profile", command=self.setup_profile).grid(row=8, columnspan=2)
+        tk.Button(self, text="Profil Setup", command=self.setup_profile).grid(row=5, column=11, columnspan=2)
 
         # Button to add client profile
-        tk.Button(self, text="Add Client", command=self.add_client).grid(row=8, column=4, columnspan=2)
+        tk.Button(self, text="Add Client", command=self.add_client).grid(row=6, column=1, columnspan=2)
 
     def add_item(self):
         item_dialog = tk.Toplevel(self)
@@ -115,7 +138,6 @@ class InvoiceApp(tk.Tk):
 
 
     def insert_item(self, item_description, item_hours, item_hourly, item_dialog):
-
         item_price = item_hourly * item_hours
         self.itemization_table.insert('', 'end', values=(self.next_item_id, item_description, item_hours, item_hourly, item_price))
         self.next_item_id += 1
@@ -198,6 +220,18 @@ class InvoiceApp(tk.Tk):
         self.client_address_var.set(client_address)
         self.client_address_label.config(text=self.client_address_var.get())
 
+        client_currency = client_data.get("currency", "")
+        self.client_currency_var.set(client_currency)
+        self.client_currency_label.config(text=self.client_currency_var.get())
+
+        client_english = client_data.get("english", "")
+        self.client_english_var.set(client_english)
+        self.client_english_label.config(text=self.client_english_var.get())
+
+        client_umsatzsteuer = client_data.get("umsatzsteuer", "")
+        self.client_umsatzsteuer_var.set(client_umsatzsteuer)
+        self.client_umsatzsteuer_label.config(text=self.client_umsatzsteuer_var.get())
+
 
 
 
@@ -249,28 +283,50 @@ class ClientSetup(tk.Toplevel):
         self.title("Client Setup")
         
         # Define the client name and address entry widgets
-        tk.Label(self, text="Client Name:").grid(row=0, column=0, sticky="w")
+        tk.Label(self, text="Name:").grid(row=0, column=0, sticky="w")
         self.name_var = tk.StringVar()
         self.client_name_entry = tk.Entry(self, textvariable=self.name_var)
         self.client_name_entry.grid(row=0, column=1, sticky="w")
 
-        tk.Label(self, text="Client Address:").grid(row=1, column=0, sticky="w")
+        tk.Label(self, text="Addresse:").grid(row=1, column=0, sticky="w")
         self.address_var = tk.StringVar()
         self.client_address_entry = tk.Entry(self, textvariable=self.address_var)
         self.client_address_entry.grid(row=1, column=1, sticky="w")
+
+        tk.Label(self, text="Währung:").grid(row=2, column=0, sticky="w")
+        self.currency_var = tk.StringVar()
+        self.currency_combobox = ttk.Combobox(self, textvariable=self.currency_var, values=["€", "$"])
+        self.currency_combobox.current(0) # set the default value to €
+        self.currency_combobox.grid(row=2, column=1, sticky="w")
+
+        self.english_var = tk.BooleanVar()
+        self.client_checkbox = tk.Checkbutton(self, text="Englisch:", variable=self.english_var)
+        self.client_checkbox.grid(row=3, column=0, sticky="w")
+
+        self.umsatzsteuer_var = tk.BooleanVar()
+        self.client_checkbox = tk.Checkbutton(self, text="Umsatzsteuer hinzufügen (bei deutschen Kunden):", variable=self.umsatzsteuer_var)
+        self.client_checkbox.grid(row=4, column=0, sticky="w")
         
-        tk.Button(self, text="Save Client", command=self.save_client).grid(row=2, columnspan=2)
+        
+        tk.Button(self, text="Save", command=self.save_client).grid(row=5, columnspan=2)
 
     def save_client(self):
         client_name = self.name_var.get()
         client_address = self.address_var.get()
+        client_currency = self.currency_var.get()
+        client_english = self.english_var.get()
+        client_umsatzsteuer = self.umsatzsteuer_var.get()
         if not client_name or not client_address:
             messagebox.showerror("Error", "Please enter client name and address.")
             return
 
         client = {
             "name": client_name,
-            "address": client_address
+            "address": client_address,
+            "currency": client_currency,
+            "english": client_english,
+            "umsatzsteuer": client_umsatzsteuer
+
         }
 
         if os.path.exists('clients.json'):
