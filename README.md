@@ -51,6 +51,8 @@ Bei Pauschalen müssen keine Belege bereitstehen.
 - Wenn Fehler gemacht wurden kann eine berichtigte Umsatzsteuervoranmeldung abgegeben werden
 - Am Jahresende muss die Umsatzsteuer-Erklärung abgegeben werden (Zusammenfassung der bereits agegebenen Umsatzsteuervoranmeldungen)[^1]
 
+- [Umsatzsteuer-Umrechnungskurs](https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuerarten/Umsatzsteuer/Umsatzsteuer_Umrechnungskurse/umsatzsteuer_umrechnungskurse.html) ausländische Währungen zum €
+
 ### Vorsteuer
 TODO
 
